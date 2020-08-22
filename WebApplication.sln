@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication", "WebApplication\WebApplication.csproj", "{E2D1FDB8-5712-4E6D-944B-25FE09EDD2D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservationApi", "ReservationApi\ReservationApi.csproj", "{E2D1FDB8-5712-4E6D-944B-25FE09EDD2D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
