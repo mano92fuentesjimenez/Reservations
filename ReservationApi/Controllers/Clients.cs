@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
+using WebApplication.Utils;
 
 namespace WebApplication.Controllers
 {
@@ -35,7 +37,7 @@ namespace WebApplication.Controllers
     }
 
     [HttpPost("{id}")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> CreateClient(Client client)
     {
@@ -56,7 +58,6 @@ namespace WebApplication.Controllers
       await this._reservationContext.Clients.AddAsync(client);
       await this._reservationContext.SaveChangesAsync();
       return CreatedAtAction(nameof(CreateClient), client);
-
     }
 
     [HttpDelete("{id}")]
@@ -74,6 +75,38 @@ namespace WebApplication.Controllers
       this._reservationContext.Clients.Remove(client);
       await this._reservationContext.SaveChangesAsync();
       return Ok();
+    }
+
+    [HttpGet("list")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<List<Client>>>> ListClients([FromQuery]ListFilter filters)
+    {
+      var paging = filters.Paging;
+      var ordering = filters.Ordering;
+
+      if (ordering.IsOrdering())
+      {
+        var clientType = typeof(Client);
+        var orderingColumn = ordering.GetOrderingColumn();
+        var columnType = clientType.GetProperty(orderingColumn);
+        if (columnType == null)
+          return BadRequest("Column \"" + orderingColumn + "\" doesn't exist");
+      }
+
+      var count = await this._reservationContext.Clients.CountAsync();
+      var query = this._reservationContext.Clients
+        .Skip(paging.OffSet())
+        .Take(paging.PerPage);
+
+      query = (IQueryable<Client>)ordering.SetOrderQuery(query);
+      var results = await query.ToListAsync();
+
+      return new PagedResponse<List<Client>>()
+      {
+        Data = results,
+        Ordering = filters.Ordering,
+        Paging = paging.CreatePaging(count),
+      };
     }
 
     private Task<Client> getClientByNameHelper(string name)
