@@ -26,7 +26,7 @@ namespace WebApplication.Controllers
     {
       var client = await this.getClientByNameHelper(name);
 
-      if (client is null)
+      if (client == null)
       {
         return NotFound();
       }
@@ -57,6 +57,23 @@ namespace WebApplication.Controllers
       await this._reservationContext.SaveChangesAsync();
       return CreatedAtAction(nameof(CreateClient), client);
 
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteClient(int id)
+    {
+      var client = await this._reservationContext.Clients.FindAsync(id);
+
+      if (client == null)
+      {
+        return NotFound();
+      }
+
+      this._reservationContext.Clients.Remove(client);
+      await this._reservationContext.SaveChangesAsync();
+      return Ok();
     }
 
     private Task<Client> getClientByNameHelper(string name)
