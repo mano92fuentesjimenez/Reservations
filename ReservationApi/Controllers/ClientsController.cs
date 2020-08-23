@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,11 +43,10 @@ namespace WebApplication.Controllers
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> CreateClient(Client client)
     {
-      if (client.Name == null)
-      {
-        return BadRequest("Client name must have a value");
-      }
-
+      var validMessage = await isValid(client);
+      if (validMessage != null)
+        return BadRequest(validMessage);
+      
       var clientFromDb = await this.getClientByNameHelper(client.Name);
 
       if (clientFromDb != null)
@@ -54,11 +54,29 @@ namespace WebApplication.Controllers
         return BadRequest("Already exists a client with name " + client.Name);
       }
       
-      //todo: More validations could be added
-
       await this._reservationContext.Clients.AddAsync(client);
       await this._reservationContext.SaveChangesAsync();
       return CreatedAtAction(nameof(CreateClient), client);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> UpdateClient(int id, Client client)
+    {
+      var clientById = await _reservationContext.Clients.FindAsync(id);
+      var validMessage = await isValid(client);
+      if (validMessage != null)
+        return BadRequest(validMessage);
+
+      clientById.Name = client.Name;
+      clientById.PhoneNumber = client.PhoneNumber;
+      clientById.BirthDate = client.BirthDate;
+      clientById.ContactType = client.ContactType;
+      
+      await _reservationContext.SaveChangesAsync();
+
+      return this.Ok(clientById);
     }
 
     [HttpDelete("{id}")]
@@ -108,6 +126,18 @@ namespace WebApplication.Controllers
     private Task<Client> getClientByNameHelper(string name)
     {
       return this._reservationContext.Clients.Where(c => c.Name == name).FirstOrDefaultAsync();
+    }
+
+    private async Task<string?> isValid(Client client)
+    {
+      if (client.Name == null)
+      {
+        return "Client name must have a value";
+      }
+
+      //todo: More validations could be added
+
+      return null;
     }
   }
 }
