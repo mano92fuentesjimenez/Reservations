@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 namespace WebApplication.Utils
@@ -12,6 +13,6 @@ namespace WebApplication.Utils
     public Paging Paging { get; set; }
     
     [DataMember]
-    public T Data { get; set; }
+    public List<T> Data { get; set; }
   }
 }

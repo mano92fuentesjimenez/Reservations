@@ -79,19 +79,14 @@ namespace WebApplication.Controllers
 
     [HttpGet("list")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<List<Client>>>> ListClients([FromQuery]ListFilter filters)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<PagedResponse<Client>>> ListClients([FromQuery]ListFilter filters)
     {
       var paging = filters.Paging;
       var ordering = filters.Ordering;
 
-      if (ordering.IsOrdering())
-      {
-        var clientType = typeof(Client);
-        var orderingColumn = ordering.GetOrderingColumn();
-        var columnType = clientType.GetProperty(orderingColumn);
-        if (columnType == null)
-          return BadRequest("Column \"" + orderingColumn + "\" doesn't exist");
-      }
+      if (!this.IsOrderingValid<Reservation>(ordering))
+        return BadRequest("Column \"" + ordering.GetOrderingColumn() + "\" doesn't exist");
 
       var count = await this._reservationContext.Clients.CountAsync();
       var query = this._reservationContext.Clients
@@ -101,7 +96,7 @@ namespace WebApplication.Controllers
       query = (IQueryable<Client>)ordering.SetOrderQuery(query);
       var results = await query.ToListAsync();
 
-      return new PagedResponse<List<Client>>()
+      return new PagedResponse<Client>()
       {
         Data = results,
         Ordering = filters.Ordering,
