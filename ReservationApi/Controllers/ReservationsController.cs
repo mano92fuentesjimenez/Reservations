@@ -10,7 +10,7 @@ using WebApplication.Utils.Models;
 
 namespace WebApplication.Controllers
 {
-  [Route("api/reservations")]
+  [Route("api/reservation")]
   [ApiController]
   public class ReservationsController : ControllerBase
   {
@@ -46,6 +46,22 @@ namespace WebApplication.Controllers
         Ordering = filters.Ordering,
         Paging = paging.CreatePaging(count),
       };
+    }
+
+    [HttpPost()]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Reservation>> CreateReservationAndClient(Reservation reservation)
+    {
+      var client = await _reservationContext.Clients.FindAsync(reservation.ClientId);
+
+      if (client == null)
+        return BadRequest("Linked client doesn't exist");
+
+      await _reservationContext.Reservations.AddAsync(reservation);
+      await _reservationContext.SaveChangesAsync();
+
+      return CreatedAtAction(nameof(CreateReservationAndClient), reservation);
     }
   }
 }
