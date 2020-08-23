@@ -51,17 +51,47 @@ namespace WebApplication.Controllers
     [HttpPost()]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<Reservation>> CreateReservationAndClient(Reservation reservation)
+    public async Task<ActionResult<Reservation>> CreateReservation(Reservation reservation)
     {
-      var client = await _reservationContext.Clients.FindAsync(reservation.ClientId);
-
-      if (client == null)
-        return BadRequest("Linked client doesn't exist");
+      var errorMessage = await isValid(reservation);
+      if (errorMessage != null)
+        return BadRequest(errorMessage);
 
       await _reservationContext.Reservations.AddAsync(reservation);
       await _reservationContext.SaveChangesAsync();
 
-      return CreatedAtAction(nameof(CreateReservationAndClient), reservation);
+      return CreatedAtAction(nameof(CreateReservation), reservation);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<Reservation>> UpdateReservation(int id, Reservation reservation)
+    {
+      var reservationById = await _reservationContext.Reservations.FindAsync(id);
+      var errorMessage = await isValid(reservation);
+
+      if (errorMessage != null)
+        return BadRequest(errorMessage);
+
+      reservationById.ClientId = reservation.ClientId;
+      reservationById.Description = reservation.Description;
+      reservationById.Favorite = reservation.Favorite;
+      reservationById.Name = reservation.Name;
+      reservationById.CreationTime = reservation.CreationTime;
+      reservationById.Ranking = reservation.Ranking;
+
+      await _reservationContext.SaveChangesAsync();
+      return Ok(reservationById);
+    }
+
+    private async Task<string?> isValid(Reservation reservation)
+    {
+      var client = await _reservationContext.Clients.FindAsync(reservation.ClientId);
+
+      if (client == null)
+        return "Linked client doesn't exist";
+      return null;
     }
   }
 }
