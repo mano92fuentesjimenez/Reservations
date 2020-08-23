@@ -27,13 +27,12 @@ namespace WebApplication
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
             services.AddDbContext<ReservationContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"),
                     o => o.SetPostgresVersion(new Version(9, 6))
                 )
             );
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
