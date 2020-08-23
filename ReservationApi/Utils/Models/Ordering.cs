@@ -1,10 +1,8 @@
-using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using Microsoft.EntityFrameworkCore;
+using WebApplication.Utils.Extensions;
 
-namespace WebApplication.Utils
+namespace WebApplication.Utils.Models
 {
   [DataContract]
   public class Ordering

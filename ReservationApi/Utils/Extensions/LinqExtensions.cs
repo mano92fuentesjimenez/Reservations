@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
-namespace WebApplication.Utils
+namespace WebApplication.Utils.Extensions
 {
   public static class LinqExtensions 
   {

@@ -1,7 +1,6 @@
-using System;
 using System.Runtime.Serialization;
 
-namespace WebApplication.Utils
+namespace WebApplication.Utils.Models
 {
  
   [DataContract]

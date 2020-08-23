@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApplication.Utils.Models;
 
-namespace WebApplication.Utils
+namespace WebApplication.Utils.Extensions
 {
   public static class ControllerBaseExtensions
   {

@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication.Data;
 using WebApplication.Models;
-using WebApplication.Utils;
+using WebApplication.Utils.Extensions;
+using WebApplication.Utils.Models;
 
 namespace WebApplication.Controllers
 {
